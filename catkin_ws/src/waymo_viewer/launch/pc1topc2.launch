@@ -1,0 +1,16 @@
+<launch>
+    <arg name="manager" default="pcl_manager" />
+    <arg name="tf_path" />
+    <arg name="bag_path" />
+    <arg name="launch_manager" default="true" />
+    <arg name="machine" default="localhost" />
+    <machine name="localhost" address="localhost" />
+
+    <node name="$(arg manager)" pkg="nodelet" type="nodelet" args="manager"
+         machine="$(arg machine)" if="$(arg launch_manager)"
+         output="screen" />
+
+    <node pkg="nodelet" type="nodelet" name="pc1topc2" 
+	    args="load waymo_viewer/pc1topc2 $(arg manager)" output="screen" />
+   
+</launch>

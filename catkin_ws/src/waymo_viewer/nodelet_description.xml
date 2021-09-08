@@ -1,0 +1,8 @@
+<library path="lib/libwaymo_viewer">
+  <class name="waymo_viewer/pc1topc2"
+     type="waymo_viewer::pc1topc2"
+     base_class_type="nodelet::Nodelet">
+    <description>
+    </description>
+  </class>
+</library>

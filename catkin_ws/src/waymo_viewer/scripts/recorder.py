@@ -8,6 +8,7 @@ from geometry_msgs.msg import Point32
 from sensor_msgs.msg import CompressedImage
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import PointCloud
+from sensor_msgs.msg import ChannelFloat32
 from visualization_msgs.msg import MarkerArray
 from visualization_msgs.msg import Marker
 from geometry_msgs.msg import TransformStamped
@@ -149,8 +150,9 @@ def convert_range_image_to_point_cloud(frame, range_images, camera_projections, 
         cp_points_tensor = tf.gather_nd(cp_tensor, tf.where(range_image_mask))
         points.append(points_tensor.numpy())
         cp_points.append(cp_points_tensor.numpy())
+        range_image_intensity = range_image_tensor[...,1]
 
-    return points, cp_points
+    return points, cp_points, range_image_intensity
 
 def find_camera_label(name, camera_labels):
     for camera_label in camera_labels:
@@ -313,7 +315,7 @@ def talker():
                 ### lidar visualization
                 (range_images, camera_projections, range_image_top_pose) = parse_range_image_and_camera_projection(frame)
                 # Calculate the point cloud
-                points, cp_points = convert_range_image_to_point_cloud(frame, range_images, camera_projections,range_image_top_pose)
+                points, cp_points, range_image_intensity = convert_range_image_to_point_cloud(frame, range_images, camera_projections,range_image_top_pose)
 
                 # publish lidar pointcloud and label
                 for index, lidar_points in enumerate(points):
@@ -323,6 +325,11 @@ def talker():
 
                     for point in points[index]:
                         lidar.points.append(Point32(point[0], point[1], point[2]))
+
+                    intensity_channel = ChannelFloat32(name = 'intensities')
+                    for value in range_image_intensity[index]:
+                        intensity_channel.values += [value]
+                    lidar.channels += [intensity_channel]
 
                     calibration = find_lidar_calibration(lidar_name, frame.context.laser_calibrations)
 
