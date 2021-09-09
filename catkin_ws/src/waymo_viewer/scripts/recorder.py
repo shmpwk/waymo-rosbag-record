@@ -210,6 +210,8 @@ def talker():
             header = Header()
             header.frame_id = '/vehicle'
 
+            context_name = String()
+
             transforms = TFMessage()
 
             # Read frame
@@ -221,6 +223,9 @@ def talker():
                 header.stamp.nsecs = int((frame.timestamp_micros / 1000000.0 - header.stamp.secs)*1000000000)
                 print("time stamp : ", frame.timestamp_micros)
 
+                context_name.data = str(frame.context.name)
+                bag.write("/context_name", context_name)
+                
                 ### publish camera image and label
                 for image in frame.images:
                     camera_image = Image()
